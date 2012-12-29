@@ -12,7 +12,7 @@ function commerce_autopay_menu() {
   $items['admin/commerce/config/recurring'] = array(
     'title' => 'Recurring Orders',
     'file' => 'commerce_autopay.admin.inc',
-    'access arguments' => array('administer commerce recurring'),
+    'access arguments' => array('administer commerce autopay'),
     'type' => MENU_NORMAL_ITEM,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_autopay_admin_form')
@@ -25,7 +25,7 @@ function commerce_autopay_menu() {
 */
 function commerce_autopay_permission() {
   return array(
-    'administer commerce recurring' => array(
+    'administer commerce autopay' => array(
       'title' => t('Administer Commerce Recurring')
     )
   );
@@ -37,7 +37,7 @@ function commerce_autopay_permission() {
 function commerce_autopay_help($path, $arg) {
   switch ($path) {
     case 'admin/help#commerce_autopay':
-      return t("Provides recurring payment options for Drupal Commerce");
+      return t("Provides autopay payment options for Drupal Commerce");
   }
 }
 

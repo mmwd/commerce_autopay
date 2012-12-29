@@ -52,11 +52,3 @@ function commerce_autopay_views_api() {
 }
 
 
-/**
- * Implements hook_entity_info_alter()
-*/
-function commerce_autopay_entity_info_alter() {
-  $entity_info['commerce_order']['bundles']['recurring_order'] = array(
-    'label' => t('Recurring Order', array(), array('context' => 'a recurring drupal commerce order')),
-  );
-}

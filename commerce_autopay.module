@@ -1,21 +1,21 @@
 <?php
 /**
- * @file commerce_recurring.module
+ * @file commerce_autopay.module
  * Provides recurring framework for Drupal Commerce
  */
 
 /**
  * Implements hook_menu().
 */
-function commerce_recurring_menu() {
+function commerce_autopay_menu() {
   $items = array();
   $items['admin/commerce/config/recurring'] = array(
     'title' => 'Recurring Orders',
-    'file' => 'commerce_recurring.admin.inc',
+    'file' => 'commerce_autopay.admin.inc',
     'access arguments' => array('administer commerce recurring'),
     'type' => MENU_NORMAL_ITEM,
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('commerce_recurring_admin_form')
+    'page arguments' => array('commerce_autopay_admin_form')
   );
   return $items;
 }
@@ -23,7 +23,7 @@ function commerce_recurring_menu() {
 /**
  * Implements hook_permission()
 */
-function commerce_recurring_permission() {
+function commerce_autopay_permission() {
   return array(
     'administer commerce recurring' => array(
       'title' => t('Administer Commerce Recurring')
@@ -34,9 +34,9 @@ function commerce_recurring_permission() {
 /**
  * Implements hook_help().
  */
-function commerce_recurring_help($path, $arg) {
+function commerce_autopay_help($path, $arg) {
   switch ($path) {
-    case 'admin/help#commerce_recurring':
+    case 'admin/help#commerce_autopay':
       return t("Provides recurring payment options for Drupal Commerce");
   }
 }
@@ -44,10 +44,10 @@ function commerce_recurring_help($path, $arg) {
 /**
  * Implements hook_views_api().
  */
-function commerce_recurring_views_api() {
+function commerce_autopay_views_api() {
   return array(
     'api' => 3,
-    'path' => drupal_get_path('module', 'commerce_recurring') . '/includes/views',
+    'path' => drupal_get_path('module', 'commerce_autopay') . '/includes/views',
   );
 }
 
@@ -55,7 +55,7 @@ function commerce_recurring_views_api() {
 /**
  * Implements hook_entity_info_alter()
 */
-function commerce_recurring_entity_info_alter() {
+function commerce_autopay_entity_info_alter() {
   $entity_info['commerce_order']['bundles']['recurring_order'] = array(
     'label' => t('Recurring Order', array(), array('context' => 'a recurring drupal commerce order')),
   );

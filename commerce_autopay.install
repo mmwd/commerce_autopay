@@ -1,6 +1,6 @@
 <?php
 /*
- * @file commerce_recurring.install
+ * @file commerce_autopay.install
  * Provides install hooks for the module
  * @copyright Copyright(c) 2011 Rowlands Group
  * @license GPL v3 http://www.fsf.org/licensing/licenses/gpl.html
@@ -11,7 +11,7 @@
 /**
  * Implements hook_schema().
  * /
-function commerce_recurring_schema() {
+function commerce_autopay_schema() {
 
 }
 
@@ -19,10 +19,10 @@ function commerce_recurring_schema() {
 /**
  * Implements hook_uninstall().
  */
-function commerce_recurring_uninstall() {
+function commerce_autopay_uninstall() {
   // Loop over each of the fields defined by this module and delete
   // all instances of the field, their data, and the field itself.
-  foreach (array_keys(_commerce_recurring_installed_fields()) as $field) {
+  foreach (array_keys(_commerce_autopay_installed_fields()) as $field) {
     field_delete_field($field);
   }
 
@@ -33,7 +33,7 @@ function commerce_recurring_uninstall() {
 /**
  * Implements hook_install().
  */
-function commerce_recurring_install() {
+function commerce_autopay_install() {
   // Create the recurring product type.
   $product_type = commerce_product_ui_product_type_new();
 
@@ -56,7 +56,7 @@ function commerce_recurring_install() {
   entity_info_cache_clear();
 
   // Create our fields
-  foreach (_commerce_recurring_installed_fields() as $field_name => $field_detail) {
+  foreach (_commerce_autopay_installed_fields() as $field_name => $field_detail) {
     // Look for existing field.
     $field = field_info_field($field_name);
   
@@ -66,7 +66,7 @@ function commerce_recurring_install() {
   }
 
   // And their instances
-  foreach (_commerce_recurring_installed_instances() as $field_name => $instance_detail) {
+  foreach (_commerce_autopay_installed_instances() as $field_name => $instance_detail) {
     // Look for existing instance.
     $instance = field_info_instance($instance_detail['entity_type'], $instance_detail['bundle'], $field_name, $type);
   
@@ -84,11 +84,11 @@ function commerce_recurring_install() {
  *  entities
  *
  */
-function _commerce_recurring_installed_fields() {
+function _commerce_autopay_installed_fields() {
   $t = get_t();
   return array(
-    'commerce_recurring_interval' => array(
-      'field_name' => 'commerce_recurring_interval',
+    'commerce_autopay_interval' => array(
+      'field_name' => 'commerce_autopay_interval',
       'cardinality' => 1,
       'type'        => 'interval',
       'settings'    => array(
@@ -99,8 +99,8 @@ function _commerce_recurring_installed_fields() {
         ),
       ),
     ),
-    'commerce_recurring_parent_order' => array(
-      'field_name' => 'commerce_recurring_parent_order',
+    'commerce_autopay_parent_order' => array(
+      'field_name' => 'commerce_autopay_parent_order',
       'cardinality' => 1,
       'type'        => 'commerce_order_reference',
       'settings'    => array(
@@ -108,8 +108,8 @@ function _commerce_recurring_installed_fields() {
         'field_injection' => FALSE
       ),
     ),
-    'commerce_recurring_next_due' => array(
-      'field_name' => 'commerce_recurring_next_due',
+    'commerce_autopay_next_due' => array(
+      'field_name' => 'commerce_autopay_next_due',
       'cardinality' => 1,
       'type'        => 'datestamp',
       'settings'    => array(
@@ -127,8 +127,8 @@ function _commerce_recurring_installed_fields() {
         'tz_handling' => 'site',
       ),
     ),
-    'commerce_recurring_payment_due' => array(
-      'field_name' => 'commerce_recurring_payment_due',
+    'commerce_autopay_payment_due' => array(
+      'field_name' => 'commerce_autopay_payment_due',
       'cardinality' => 1,
       'type'        => 'datestamp',
       'settings'    => array(
@@ -156,13 +156,13 @@ function _commerce_recurring_installed_fields() {
  *  An associative array specifying the instances we wish to add to our entities
  *
  */
-function _commerce_recurring_installed_instances() {
+function _commerce_autopay_installed_instances() {
   $t = get_t();
   return array(
-    'commerce_recurring_interval' => array(
+    'commerce_autopay_interval' => array(
       'entity_type' => 'commerce_product',
       'bundle' => 'recurring',
-      'field_name' => 'commerce_recurring_interval',
+      'field_name' => 'commerce_autopay_interval',
       'label'       => $t('Billing interval'),
       'widget'      => array(
         'type'    => 'interval_default',
@@ -174,10 +174,10 @@ function _commerce_recurring_installed_instances() {
         ),
       ),
     ),
-    'commerce_recurring_parent_order' => array(
+    'commerce_autopay_parent_order' => array(
       'entity_type' => 'commerce_order',
       'bundle' => 'recurring_order',
-      'field_name' => 'commerce_recurring_parent_order',
+      'field_name' => 'commerce_autopay_parent_order',
       'label'       => $t('Parent Order.'),
       'widget'      => array(
         'type'    => 'options_select',
@@ -189,10 +189,10 @@ function _commerce_recurring_installed_instances() {
         ),
       ),
     ),
-    'commerce_recurring_payment_due' => array(
+    'commerce_autopay_payment_due' => array(
       'entity_type' => 'commerce_order',
       'bundle' => 'recurring_order',
-      'field_name' => 'commerce_recurring_payment_due',
+      'field_name' => 'commerce_autopay_payment_due',
       'label'       => $t('Payment Due.'),
       'widget'      => array(
         'settings' => array(
@@ -222,10 +222,10 @@ function _commerce_recurring_installed_instances() {
         ),
       ),
     ),
-    'commerce_recurring_next_due' => array(
+    'commerce_autopay_next_due' => array(
       'entity_type' => 'commerce_order',
       'bundle' => 'commerce_order',
-      'field_name' => 'commerce_recurring_next_due',
+      'field_name' => 'commerce_autopay_next_due',
       'label'       => $t('Next Invoice.'),
       'widget'      => array(
         'settings' => array(

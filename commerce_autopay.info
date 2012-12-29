@@ -12,5 +12,5 @@ dependencies[] = date_popup
 dependencies[] = rules
 package = Commerce
 core = 7.x
-files[] = commerce_recurring.module
-files[] = commerce_recurring.install
+files[] = commerce_autopay.module
+files[] = commerce_autopay.install

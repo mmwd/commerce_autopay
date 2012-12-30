@@ -1,0 +1,54 @@
+<?php
+/**
+ * @file commerce_autopay.module
+ * Provides recurring framework for Drupal Commerce
+ */
+
+/**
+ * Implements hook_menu().
+*/
+function commerce_autopay_menu() {
+  $items = array();
+  $items['admin/commerce/config/recurring'] = array(
+    'title' => 'Recurring Orders',
+    'file' => 'commerce_autopay.admin.inc',
+    'access arguments' => array('administer commerce autopay'),
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_autopay_admin_form')
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_permission()
+*/
+function commerce_autopay_permission() {
+  return array(
+    'administer commerce autopay' => array(
+      'title' => t('Administer Commerce Recurring')
+    )
+  );
+}
+
+/**
+ * Implements hook_help().
+ */
+function commerce_autopay_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#commerce_autopay':
+      return t("Provides autopay payment options for Drupal Commerce");
+  }
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function commerce_autopay_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'commerce_autopay') . '/includes/views',
+  );
+}
+
+

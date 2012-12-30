@@ -7,10 +7,10 @@
 /**
  * Implements hook_rules_condition_info().
  */
-function commerce_recurring_rules_condition_info() {
+function commerce_autopay_rules_condition_info() {
   $conditions = array();
 
-  $conditions['commerce_recurring_rules_order_is_master'] = array(
+  $conditions['commerce_autopay_rules_order_is_master'] = array(
     'label' => t('Order is recurring set master'),
     'parameter' => array(
       'commerce_order' => array(
@@ -22,7 +22,7 @@ function commerce_recurring_rules_condition_info() {
     'group' => t('Commerce Order'),
   );
   
-  $conditions['commerce_recurring_rules_order_contains_recurring'] = array(
+  $conditions['commerce_autopay_rules_order_contains_recurring'] = array(
     'label' => t('Order contains a recurring product'),
     'parameter' => array(
       'commerce_order' => array(
@@ -39,13 +39,13 @@ function commerce_recurring_rules_condition_info() {
 /**
  * Implements hook_rules_event_info().
  */
-function commerce_recurring_rules_event_info() {
+function commerce_autopay_rules_event_info() {
   $events = array();
   // So that we can use the entity_rules_events_variables() helper function.
   module_load_include('inc', 'entity', 'entity.rules');
 
 
-  $events['commerce_recurring_rules_event_new_order'] = array(
+  $events['commerce_autopay_rules_event_new_order'] = array(
     'label' => t('A new recurring order is created'),
     'variables' => array(
       'commerce_order' => array(
@@ -62,7 +62,7 @@ function commerce_recurring_rules_event_info() {
     entity_rules_events_variables('commerce_payment_transaction', t('Last completed transaction'), TRUE)
   );
   
-  $events['commerce_recurring_rules_event_new_payment'] = array(
+  $events['commerce_autopay_rules_event_new_payment'] = array(
     'label' => t('A new recurring order payment created'),
     'variables' => $variables,
     'group' => t('Commerce Recurring'),
@@ -76,10 +76,10 @@ function commerce_recurring_rules_event_info() {
 /**
  * Implements hook_rules_action_info().
  */
-function commerce_recurring_rules_action_info() {
+function commerce_autopay_rules_action_info() {
   $actions = array();
 
-  $actions['commerce_recurring_process_recurring'] = array(
+  $actions['commerce_autopay_process_recurring'] = array(
     'label' => t('Generate new recurring orders'),
     'parameter' => array(
       'commerce_order' => array(
@@ -97,7 +97,7 @@ function commerce_recurring_rules_action_info() {
     'group' => t('Commerce Recurring'),
   );
   
-  $actions['commerce_recurring_load_recurring'] = array(
+  $actions['commerce_autopay_load_recurring'] = array(
     'label' => t('Load recurring orders'),
     'parameters' => array(),
     'provides' => array(
@@ -122,7 +122,7 @@ function commerce_recurring_rules_action_info() {
  * @param $line_items array
  *   array of line items on the order
  */
-function commerce_recurring_process_recurring($master_order) {
+function commerce_autopay_process_recurring($master_order) {
   // Create a new order
   $recurring_order = commerce_order_new($master_order->uid, 'pending', 'recurring_order');
 
@@ -143,7 +143,7 @@ function commerce_recurring_process_recurring($master_order) {
       // We don't need this item
       continue;
     }
-    $interval = $product_wrapper->commerce_recurring_interval->value();
+    $interval = $product_wrapper->commerce_autopay_interval->value();
     $interval_label = interval_format_interval($interval);
     
     // Create the new product line item.
@@ -164,27 +164,27 @@ function commerce_recurring_process_recurring($master_order) {
   }
   
   // Set the parent order
-  $recurring_order->commerce_recurring_parent_order[LANGUAGE_NONE][0]['order_id'] = $master_order->order_id;
+  $recurring_order->commerce_autopay_parent_order[LANGUAGE_NONE][0]['order_id'] = $master_order->order_id;
   // Set the payment due date
-  $payment_interval = variable_get('commerce_recurring_payment_interval', 3);
+  $payment_interval = variable_get('commerce_autopay_payment_interval', 3);
   
   $payment_dt = new DateObject('now');
   if ($payment_interval) {
     $payment_dt->modify("+$payment_interval days");
   }
-  $recurring_order->commerce_recurring_payment_due[LANGUAGE_NONE][0]['value'] = $payment_dt->format('U');
+  $recurring_order->commerce_autopay_payment_due[LANGUAGE_NONE][0]['value'] = $payment_dt->format('U');
 
   // Save the updated order.
   commerce_order_save($recurring_order);
   
   // Invoke rules event to notify others that the new order has been created
-  rules_invoke_all('commerce_recurring_rules_event_new_order', $recurring_order);
+  rules_invoke_all('commerce_autopay_rules_event_new_order', $recurring_order);
   
   // Wrap the master order for easy access to field data.
   $master_order_wrapper = entity_metadata_wrapper('commerce_order', $master_order);
   
   // Get the due date
-  $due_date = $master_order_wrapper->commerce_recurring_next_due->value();
+  $due_date = $master_order_wrapper->commerce_autopay_next_due->value();
   
   // Create an object
   $due_date_obj = new DateObject($due_date['value'], date_default_timezone(), 'U');
@@ -192,7 +192,7 @@ function commerce_recurring_process_recurring($master_order) {
   // Apply the inteval
   if ($interval && interval_apply_interval($due_date_obj, $interval)) {
     // Update the parent next due
-    $master_order->commerce_recurring_next_due[LANGUAGE_NONE][0]['value'] = $due_date_obj->format('U');
+    $master_order->commerce_autopay_next_due[LANGUAGE_NONE][0]['value'] = $due_date_obj->format('U');
     // Save the parent
     commerce_order_save($master_order);
   }  
@@ -203,7 +203,7 @@ function commerce_recurring_process_recurring($master_order) {
 /**
  * Condition callback: checks to see if a recurring product exists on an order
  */
-function commerce_recurring_rules_order_contains_recurring($order) {
+function commerce_autopay_rules_order_contains_recurring($order) {
   // If we actually received a valid order...
   if (!empty($order)) {
     $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
@@ -221,12 +221,12 @@ function commerce_recurring_rules_order_contains_recurring($order) {
 /**
  * Condition callback: checks to see if a recurring product exists on an order
  */
-function commerce_recurring_rules_order_is_master($order) {
+function commerce_autopay_rules_order_is_master($order) {
   // If we actually received a valid order...
   if (!empty($order)) {
     $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
 
-    $next_due = $order->wrapper->commerce_recurring_next_due->value();
+    $next_due = $order->wrapper->commerce_autopay_next_due->value();
     if (!empty($next_due)) {
       return TRUE;
     }
@@ -237,13 +237,13 @@ function commerce_recurring_rules_order_is_master($order) {
 /**
  * Rules action callback: Load orders
 */
-function commerce_recurring_load_recurring() {
+function commerce_autopay_load_recurring() {
   $query = new EntityFieldQuery();
   $query->entityCondition('entity_type', 'commerce_order');
   $query->entityCondition('bundle', 'commerce_order');
   $now = new DateObject('now');
-  $query->fieldCondition('commerce_recurring_next_due', 'value', $now->format('U'), '<=');
-  $query->range(0, variable_get('commerce_recurring_batch_process', 20));
+  $query->fieldCondition('commerce_autopay_next_due', 'value', $now->format('U'), '<=');
+  $query->range(0, variable_get('commerce_autopay_batch_process', 20));
   $results = $query->execute();
   if (!empty($results['commerce_order'])) {
     return array('recurring_orders' => commerce_order_load_multiple(array_keys($results['commerce_order'])));
